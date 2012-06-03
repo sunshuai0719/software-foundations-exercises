@@ -1,4 +1,4 @@
-Software Foundations
+Software Foundations Exercises
 ====================
 
 ## What is this?
@@ -14,6 +14,6 @@ Vilhelm Sjoberg and Brent Yorgey.
 - **URL:** https://github.com/dragonwasrobot/software-foundations-exercises
 - **License:** Gnu General Public License
 
-## Install
-
 ## To-do
+
+- The informal proofs in the Basics chapter.

@@ -313,6 +313,453 @@ Qed.
 
 (* Proof by Rewriting *)
 
+Theorem plus_id_example : forall n m : nat,
+  n = m -> n + n = m + m.
+Proof.
+  intros n m.
+  intro H.
+  rewrite -> H.
+  reflexivity.
+Qed.
 
+Theorem plus_id_example' : forall n m : nat,
+  n = m -> n + n = m + m.
+Proof.
+  intros n m.
+  intro H.
+  rewrite <- H.
+  reflexivity.
+Qed.
+
+(* Exercise: 1 star (plus_id_exercise) *)
+Theorem plus_id_exercise : forall n m o : nat,
+  n = m -> m = o -> n + m = m + o.
+Proof.
+  intros n m o.
+  intros H_n_eq_m H_m_eq_o.
+  rewrite -> H_n_eq_m.
+  rewrite <- H_m_eq_o.
+  reflexivity.
+Qed.
+
+Theorem mult_O_plus : forall n m : nat,
+  (O + n) * m = n * m.
+Proof.
+  intros n m.
+  rewrite -> plus_O_n.
+  reflexivity.
+Qed.
+
+(* Exercise: 2 stars, recommended (mult_1_plus) *)
+Theorem mult_1_plus : forall n m : nat,
+  (1 + n) * m = m + (n * m).
+Proof.
+  intros n m.
+  rewrite -> plus_1_l.
+  unfold mult. fold mult.
+  reflexivity.
+Qed.
+
+(* Case Analysis *)
+
+Theorem plus_1_neg_O : forall n : nat,
+  beq_nat (n + 1) 0 = false.
+Proof.
+  intros n.
+  destruct n as [ | n' ].
+
+  unfold plus.
+  unfold beq_nat.
+  reflexivity.
+
+  unfold plus.
+  unfold beq_nat.
+  reflexivity.
+Qed.
+
+Theorem negb_involutive : forall b : bool,
+  negb (negb b) = b.
+Proof.
+  intros b.
+  destruct b.
+
+  unfold negb.
+  reflexivity.
+
+  unfold negb.
+  reflexivity.
+Qed.
+
+(* Exercise: 1 star (zero_nbeg_plus_1) *)
+Theorem zero_nbeg_plus_1 : forall n : nat,
+  beq_nat 0 (n + 1) = false.
+Proof.
+  intro n.
+  destruct n.
+
+  unfold plus.
+  unfold beq_nat.
+  reflexivity.
+
+  unfold plus.
+  unfold beq_nat.
+  reflexivity.
+Qed.
+
+(* Naming Cases *)
+
+Require Export Cases.
+
+Theorem andb_true_elim1 : forall b c : bool,
+  andb b c = true -> b = true.
+Proof.
+  intros b c.
+  intro H.
+  destruct b.
+
+  Case "b = true".
+  reflexivity.
+
+  Case "b = false".
+  rewrite <- H.
+  unfold andb.
+  reflexivity.
+Qed.
+
+(* Exercise: 2 stars (andb_true_elim2) *)
+Theorem andb_true_elim2 : forall b c : bool,
+  andb b c = true -> c = true.
+Proof.
+  intros b c.
+  intro H.
+  destruct c.
+
+  Case "c = true".
+  reflexivity.
+
+  Case "c = false".
+  rewrite <- H.
+  unfold andb.
+  destruct b.
+
+  SCase "b = true".
+  reflexivity.
+
+  SCase "b = false".
+  reflexivity.
+Qed.
+
+(* Induction *)
+
+Theorem plus_O_r : forall n : nat,
+  n + O = n.
+Proof.
+  intros n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  unfold plus.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold plus. fold plus.
+  rewrite -> IHn'.
+  reflexivity.
+Qed.
+
+Theorem minus_diag : forall n : nat,
+  minus n n = O.
+Proof.
+  intro n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  unfold minus.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold minus. fold minus.
+  rewrite -> IHn'.
+  reflexivity.
+Qed.
+
+(* Exercise: 2 stars, recommended (basic_induction) *)
+Theorem mult_O_r : forall n : nat,
+  n * O = O.
+Proof.
+  intro n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  rewrite -> mult_O_l.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold mult. fold mult.
+  rewrite -> plus_O_n.
+  rewrite -> IHn'.
+  reflexivity.
+Qed.
+
+Theorem plus_n_Sm : forall n m : nat,
+  S (n + m) = n + (S m).
+Proof.
+  intros n m.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  rewrite -> plus_O_n.
+  rewrite -> plus_O_n.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold plus. fold plus.
+  rewrite -> IHn'.
+  reflexivity.
+Qed.
+
+Theorem plus_comm : forall n m : nat,
+  n + m = m + n.
+Proof.
+  intros n m.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  rewrite -> plus_O_n.
+  rewrite -> plus_O_r.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold plus. fold plus.
+  rewrite -> IHn'.
+  rewrite -> plus_n_Sm.
+  reflexivity.
+Qed.
+
+Fixpoint double (n : nat) :=
+  match n with
+    | O => O
+    | S n' => S (S (double n'))
+  end.
+
+(* Exercise: 2 stars (double_plus) *)
+Lemma double_plus : forall n : nat,
+  double n = n + n.
+Proof.
+  intro n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  unfold double.
+  rewrite -> plus_O_n.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold double. fold double.
+  rewrite -> IHn'.
+  rewrite -> plus_n_Sm.
+  unfold plus. fold plus.
+  reflexivity.
+Qed.
+
+(* Exercise: 1 star (destruct_induction) *)
+(* Briefly explain the difference between the tactics destruct and induction:
+   Induction gives you a hypothesis while destruct just expects you to prove
+   each case without an induction hypothesis. *)
+
+(* Formal vs. Informal Proof. *)
+
+Theorem plus_assoc : forall n m p : nat,
+  n + (m + p) = (n + m) + p.
+Proof.
+  intros n m p.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  rewrite -> plus_O_n.
+  rewrite -> plus_O_n.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold plus. fold plus.
+  rewrite -> IHn'.
+  reflexivity.
+Qed.
+
+(* Exercise: 2 stars (plus_comm_informal) *)
+
+(* Translate your solution for plus_comm into an informal proof.
+
+Theorem: Addition is commutative.
+
+Proof: (* FILL IN HERE *)
+
+*)
+
+(* Exercise: 2 stars, optional (beq_nat_refl_informal) *)
+
+(* Write an informal proof of the following theorem, using the informal proof of
+   plus_assoc as a model. Don't just paraphrase the Coq tactics into English!
+
+Theorem: true = beq_nat n n for any n.
+
+Proof: (* FILL IN HERE *)
+
+*)
+
+(* Exercise: 1 star, optional (beq_nat_refl) *)
+Theorem beq_nat_refl : forall n : nat,
+  true = beq_nat n n.
+Proof.
+  intro n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  unfold beq_nat.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold beq_nat. fold beq_nat.
+  rewrite <- IHn'.
+  reflexivity.
+Qed.
+
+(* Proofs within Proofs *)
+
+Theorem mult_O_plus' : forall n m : nat,
+  (O + n) * m = n * m.
+Proof.
+  intros n m.
+  assert (H: O + n = n).
+
+    Case "Proof of assertion".
+    unfold plus.
+    reflexivity.
+
+  rewrite -> H.
+  reflexivity.
+Qed.
+
+Theorem plus_rearrange : forall n m p q : nat,
+  (n + m) + (p + q) = (m + n) + (p + q).
+Proof.
+  intros n m p q.
+  assert (H: n + m = m + n).
+
+    Case "Proof of assertion".
+    rewrite -> plus_comm.
+    reflexivity.
+
+  rewrite -> H.
+  reflexivity.
+Qed.
+
+(* We can avoid introducing H by being more specific in our rewrite *)
+Theorem plus_rearrange' : forall n m p q : nat,
+  (n + m) + (p + q) = (m + n) + (p + q).
+Proof.
+  intros n m p q.
+  rewrite -> (plus_comm n m).
+  reflexivity.
+Qed.
+
+(* Exercise: 4 stars (mult_comm) *)
+Theorem plus_swap : forall n m p : nat,
+  n + (m + p) = m + (n + p).
+Proof.
+  intros n m p.
+  rewrite -> plus_assoc.
+  rewrite -> plus_assoc.
+  rewrite -> (plus_comm n m).
+  reflexivity.
+Qed.
+
+Lemma n_mult_m_plus_n : forall n m : nat,
+  (n * m) + n = n * (S m).
+Proof.
+  intros n m.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  rewrite -> mult_O_l.
+  rewrite -> mult_O_l.
+  rewrite -> plus_O_r.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold mult. fold mult.
+  rewrite <- plus_1_l.
+  rewrite -> (plus_comm 1 n').
+  rewrite -> plus_assoc.
+  rewrite -> (plus_comm m (n' * m)).
+  rewrite <-? plus_assoc.
+  rewrite -> (plus_comm m (n' + 1)).
+  rewrite <-? plus_assoc.
+  rewrite -> plus_1_l.
+  rewrite ->? plus_assoc.
+  rewrite -> IHn'.
+  rewrite (plus_comm (S m) (n' * (S m))).
+  reflexivity.
+Qed.
+
+Theorem mult_comm : forall m n : nat,
+  m * n = n * m.
+Proof.
+  intros n m.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  rewrite -> mult_O_r.
+  rewrite -> mult_O_l.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold mult. fold mult.
+  rewrite -> IHn'.
+  rewrite <- n_mult_m_plus_n.
+  rewrite -> plus_comm.
+  reflexivity.
+Qed.
+
+(* Exercise: 2 stars, optional (evenb_n__oddb_S_n) *)
+Theorem evenb_n__oddb_S_n : forall n : nat,
+  evenb n = negb (evenb (S n)).
+Proof.
+  intro n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  unfold evenb. unfold negb.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold evenb at 2. fold evenb.
+  rewrite -> IHn'.
+  rewrite -> negb_involutive.
+  reflexivity.
+Qed.
+
+(* More Exercises *)
+
+Lemma mult_1_r : forall n : nat,
+  n * 1 = n.
+Proof.
+  intro n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  unfold mult.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold mult. fold mult.
+  rewrite -> IHn'.
+  rewrite -> plus_1_l.
+  reflexivity.
+Qed.
+
+(* TODO *)
 
 (* end-of-Basics.v *)
+
+
