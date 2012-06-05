@@ -1,8 +1,17 @@
 (* Basics.v *)
 (* Basics - Functional Programming *)
 
-(* Most uses of simpl have been replaced with more atomic actions like unfold
-   to better understand what happens all the way through the proof. *)
+(*
+   Notes to the reader:
+   - Be aware that I may at times accidentally introduce notation not yet covered
+     in the book, this mostly happens if I don't like their approach.
+   - Most uses of simpl have been replaced with more atomic actions like unfold
+     and rewrite to better understand what happens all the way through the
+     proof, instead of relying on some magical tactic.
+   - Likewise, a lot of these proofs could be done in way fewer lines but have
+     been done this way in the hopes it will give a deeper understanding of the
+     result.
+*)
 
 (* Days of the Week *)
 
@@ -692,11 +701,12 @@ Proof.
   rewrite -> (plus_comm 1 n').
   rewrite -> plus_assoc.
   rewrite -> (plus_comm m (n' * m)).
-  rewrite <-? plus_assoc.
+  rewrite <- plus_assoc.
+  rewrite <- plus_assoc.
   rewrite -> (plus_comm m (n' + 1)).
-  rewrite <-? plus_assoc.
+  rewrite <- plus_assoc.
   rewrite -> plus_1_l.
-  rewrite ->? plus_assoc.
+  rewrite -> plus_assoc.
   rewrite -> IHn'.
   rewrite (plus_comm (S m) (n' * (S m))).
   reflexivity.
@@ -741,6 +751,89 @@ Qed.
 
 (* More Exercises *)
 
+(* Exercise: 3 stars, optional (more_exercises) *)
+
+Theorem ble_nat_refl : forall n : nat,
+  true = ble_nat n n.
+Proof.
+  intro n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  unfold ble_nat.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold ble_nat. fold ble_nat.
+  rewrite <- IHn'.
+  reflexivity.
+Qed.
+
+Theorem zero_nbeg_S : forall n : nat,
+  beq_nat O (S n) = false.
+Proof.
+  intro n.
+  unfold beq_nat.
+  reflexivity.
+Qed.
+
+Theorem andb_false_r : forall b : bool,
+  andb b false = false.
+Proof.
+  intro b.
+  destruct b.
+
+  Case "b = true".
+  unfold andb.
+  reflexivity.
+
+  Case "b = false".
+  unfold andb.
+  reflexivity.
+Qed.
+
+Theorem plus_ble_compat_l : forall n m p : nat,
+  ble_nat n m = true -> ble_nat (p + n) (p + m) = true.
+Proof.
+  intros n m p.
+  intro H_ble_nat_n_m_true.
+  induction p as [ | p' ].
+
+  Case "p = O".
+  rewrite -> plus_O_n.
+  rewrite -> plus_O_n.
+  rewrite -> H_ble_nat_n_m_true.
+  reflexivity.
+
+  Case "p = S p'".
+  rewrite -> (plus_comm (S p') n).
+  rewrite <- plus_n_Sm.
+  rewrite -> (plus_comm (S p') m).
+  rewrite <- plus_n_Sm.
+  unfold ble_nat. fold ble_nat.
+  rewrite <- (plus_comm p' n).
+  rewrite <- (plus_comm p' m).
+  rewrite -> IHp'.
+  reflexivity.
+Qed.
+
+Theorem S_nbeq_O : forall n : nat,
+  beq_nat (S n) O = false.
+Proof.
+  intro n.
+  unfold beq_nat.
+  reflexivity.
+Qed.
+
+Theorem mult_1_l : forall n : nat,
+  1 * n = n.
+Proof.
+  intro n.
+  unfold mult.
+  rewrite -> plus_O_r.
+  reflexivity.
+Qed.
+
 Lemma mult_1_r : forall n : nat,
   n * 1 = n.
 Proof.
@@ -758,8 +851,174 @@ Proof.
   reflexivity.
 Qed.
 
+Theorem all3_spec : forall b c : bool,
+  orb
+  (andb b c)
+  (orb (negb b) (negb c)) = true.
+Proof.
+  intros b c.
+  destruct b.
+
+  Case "b = true".
+  destruct c.
+
+  SCase "c = true".
+  unfold negb. unfold andb. unfold orb.
+  reflexivity.
+
+  SCase "c = false".
+  unfold negb. unfold andb. unfold orb.
+  reflexivity.
+
+  Case "b = false".
+  destruct c.
+
+  SCase "c = true".
+  unfold negb. unfold andb. unfold orb.
+  reflexivity.
+
+  SCase "c = false".
+  unfold negb. unfold andb. unfold orb.
+  reflexivity.
+Qed.
+
+Theorem mult_plus_distr_r : forall n m p : nat,
+  (n + m) * p = (n * p) + (m * p).
+Proof.
+  intros n m p.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  rewrite -> plus_O_n.
+  rewrite -> plus_O_n.
+  reflexivity.
+
+  Case "S n' = O".
+  unfold plus. fold plus.
+  unfold mult. fold mult.
+  rewrite -> IHn'.
+  rewrite -> plus_assoc.
+  reflexivity.
+Qed.
+
+Theorem mult_assoc : forall n m p : nat,
+  n * (m * p) = (n * m) * p.
+Proof.
+  intros n m p.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  rewrite -> mult_O_l.
+  rewrite -> mult_O_l.
+  reflexivity.
+
+  Case "n = S n'".
+  unfold mult. fold mult.
+  rewrite -> IHn'.
+  rewrite -> mult_plus_distr_r.
+  reflexivity.
+Qed.
+
+(* Exercise: 2 stars, optional (plus_swap' *)
+
+Theorem plus_swap' : forall n m p : nat,
+  n + (m + p) = m + (n + p).
+Proof.
+  intros n m p.
+  rewrite -> plus_assoc.
+  rewrite -> plus_assoc.
+  replace (n + m) with (m + n).
+  reflexivity.
+  rewrite -> plus_comm.
+  reflexivity.
+Qed.
+
+(* Exercise: 4 stars, recommended (binary) *)
+
+(* a: First, write an inductive definition of the type [bin] corresponding to
+   this description of binary numbers. *)
+
+Inductive bin : Type :=
+  | zero : bin
+  | twice : bin -> bin
+  | twice_plus_one : bin -> bin.
+
+(* b: Next, write an increment function for binary numbers, and a function to
+   convert binary numbers to unary numbers. *)
+
+Fixpoint increment (b : bin) : bin :=
+  match b with
+    | zero => twice_plus_one zero
+    | twice b' => twice_plus_one b'
+    | twice_plus_one b' => twice (increment b')
+  end.
+
+Fixpoint binary_to_unary (b : bin) : nat :=
+  match b with
+    | zero => O
+    | twice b' => double (binary_to_unary b')
+    | twice_plus_one b' => S (double (binary_to_unary b'))
+  end.
+
+(* c: Finally, prove that your increment and binary-to-unary functions commute:
+   that is, incrementing a binary number and then converting it to unary yields
+   the same result as first converting it to unary and then incrementing. *)
+
+Theorem binary_and_unary_commute : forall (b : bin),
+  binary_to_unary (increment b) = S (binary_to_unary b).
+Proof.
+  intro b.
+  induction b as [ | b' | b' ].
+
+  Case "b = zero".
+  unfold increment.
+  unfold binary_to_unary.
+  unfold double.
+  reflexivity.
+
+  Case "b = twice b'".
+  unfold increment.
+  unfold binary_to_unary. fold binary_to_unary.
+  reflexivity.
+
+  Case "b = twice_plus_one b'".
+  unfold increment. fold increment.
+  unfold binary_to_unary. fold binary_to_unary.
+  rewrite -> IHb'.
+  unfold double. fold double.
+  reflexivity.
+Qed.
+
+(* Exercise: 5 stars (binary_inverse) *)
+
+(* a: First, write a function to convert natural numbers to binary numbers. Then
+   prove that starting with any natural number, converting to binary, then
+   converting back yields the same natural number you started with. *)
+
+(*
+Fixpoint divide_by_two (n : nat) : nat :=
+  match n with
+    | S (S n') => 1 + (divide_by_two n')
+    | S n' => divide_by_two n'
+    | O => O
+  end.
+*)
+
 (* TODO *)
 
+(* b: You might naturally think that we should also prove the opposite
+   direction: that starting with a binary number, converting to a natural, and
+   then back to binary yields the same number we started with. However, it is
+   not true!  Explain what the problem is. *)
+
+(* c: Define a function normalize from binary numbers to binary numbers such
+   that for any binary number b, converting to a natural and then back to binary
+   yields (normalize b). Prove it. *)
+
+
+
+(* Exercise: 2 stars, optional (decreasing) *)
+
+
+
 (* end-of-Basics.v *)
-
-
