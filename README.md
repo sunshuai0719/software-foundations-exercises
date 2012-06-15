@@ -21,4 +21,4 @@ Vilhelm Sjoberg and Brent Yorgey.
   - The binary_inverse exercise.
 - Lists.
   - The bag_count_sum proof in the List chapter.
-- Polymorphism.
+- Poly.
