@@ -995,14 +995,11 @@ Qed.
    prove that starting with any natural number, converting to binary, then
    converting back yields the same natural number you started with. *)
 
-(*
-Fixpoint divide_by_two (n : nat) : nat :=
-  match n with
-    | S (S n') => 1 + (divide_by_two n')
-    | S n' => divide_by_two n'
-    | O => O
-  end.
-*)
+(* To convert from a base-10 integer numeral to its base-2 (binary) equivalent,
+   the number is divided by two, and the remainder is the least-significant
+   bit. The (integer) result is again divided by two, its remainder is the next
+   least significant bit. This process repeats until the quotient becomes
+   zero. *)
 
 (* TODO *)
 
@@ -1011,14 +1008,29 @@ Fixpoint divide_by_two (n : nat) : nat :=
    then back to binary yields the same number we started with. However, it is
    not true!  Explain what the problem is. *)
 
+(* TODO *)
+
 (* c: Define a function normalize from binary numbers to binary numbers such
    that for any binary number b, converting to a natural and then back to binary
    yields (normalize b). Prove it. *)
 
-
+(* TODO *)
 
 (* Exercise: 2 stars, optional (decreasing) *)
 
+(* converge will not be accepted by Coq, despite the fact that it has a
+   decreasing argument. *)
+
+(*
+Definition minusOne (n : nat) : nat :=
+  n - 1.
+
+Fixpoint converge (n : nat) : nat :=
+  match n with
+    | O => O
+    | n => converge (minusOne n)
+  end.
+*)
 
 
 (* end-of-Basics.v *)

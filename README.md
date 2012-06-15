@@ -17,3 +17,4 @@ Vilhelm Sjoberg and Brent Yorgey.
 ## To-do
 
 - The informal proofs in the Basics chapter.
+- The bag_count_sum proof in the List chapter.
