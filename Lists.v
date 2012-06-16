@@ -529,13 +529,6 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-   Note: I end up proving snoc_append and distr_rev before rev_involutive since
-   I use them in the proof of involutivity. Having a hard time finding an
-   elegant solution to involutivity that doesn't use these either directly or
-   indirectly distr_rev.
-*)
-
 Lemma unfold_app_inductive_case : forall (h : nat) (t l : natlist),
   app (h :: t) l = h :: (app t l).
 Proof.
@@ -560,6 +553,42 @@ Proof.
   intros h t.
   unfold rev.
   fold rev.
+  reflexivity.
+Qed.
+
+Lemma rev_snoc : forall (n : nat) (l : natlist),
+  rev (snoc l n) = n :: (rev l).
+Proof.
+  intros n l.
+  induction l as [ | n' l' ].
+  unfold rev.
+  unfold snoc.
+  reflexivity.
+
+  unfold snoc.
+  fold snoc.
+  unfold rev.
+  fold rev.
+  rewrite -> IHl'.
+  unfold snoc.
+  fold snoc.
+  reflexivity.
+Qed.
+
+Theorem rev_involutive : forall (l : natlist),
+  rev (rev l) = l.
+Proof.
+  intro l.
+  induction l as [ | n l' ].
+
+  Case "l = nil".
+  unfold rev.
+  reflexivity.
+
+  Case "l = cons n l'".
+  rewrite -> unfold_rev_inductive_case.
+  rewrite -> rev_snoc.
+  rewrite -> IHl'.
   reflexivity.
 Qed.
 
@@ -602,28 +631,6 @@ Proof.
   rewrite -> unfold_rev_inductive_case.
   rewrite -> snoc_append.
   rewrite -> app_ass.
-  reflexivity.
-Qed.
-
-Theorem rev_involutive : forall (l : natlist),
-  rev (rev l) = l.
-Proof.
-  intro l.
-  induction l as [ | n l' ].
-
-  Case "l = nil".
-  unfold rev.
-  reflexivity.
-
-  Case "l = cons n l'".
-  rewrite -> unfold_rev_inductive_case.
-  rewrite -> snoc_append.
-  rewrite -> distr_rev.
-  rewrite -> IHl'.
-  unfold rev.
-  unfold snoc.
-  rewrite -> unfold_app_inductive_case.
-  unfold app.
   reflexivity.
 Qed.
 
