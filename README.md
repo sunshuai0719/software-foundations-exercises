@@ -10,7 +10,7 @@ Vilhelm Sjoberg and Brent Yorgey.
 
 - **Author:** Peter Urbak, peter@dragonwasrobot.com
 - **Created:** 2012-06-03
-- **Last Modified:** 2012-06-15
+- **Last Modified:** 2012-06-17
 - **URL:** https://github.com/dragonwasrobot/software-foundations-exercises
 - **License:** Gnu General Public License
 
@@ -22,4 +22,4 @@ Vilhelm Sjoberg and Brent Yorgey.
 - Lists.
   - The bag_count_sum proof in the List chapter.
 - Poly.
-  -
+  - From 'The apply Tactic' and down.
