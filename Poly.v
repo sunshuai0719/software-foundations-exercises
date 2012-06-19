@@ -583,7 +583,766 @@ Qed.
 
 (* The apply Tactic *)
 
+Theorem silly1 : forall (n m o p : nat),
+  n = m ->
+  [n,o] = [n,p] ->
+  [n,o] = [m,p].
+Proof.
+  intros n m o p eq1 eq2.
+  rewrite <- eq1.
+  apply eq2.
+Qed.
+
+Theorem silly2 : forall (n m o p : nat),
+  n = m ->
+  (forall (q r : nat), q = r -> [q,o] = [r,p]) ->
+  [n,o] = [m,p].
+Proof.
+  intros n m o p eq1 eq2.
+  apply eq2.
+  apply eq1.
+Qed.
+
+Theorem silly2' : forall (n m o p : nat),
+  n = m ->
+  (forall (q r : nat), q = r -> [q,o] = [r,p]) ->
+  [n,o] = [m,p].
+Proof.
+  intros n m o p eq1 eq2.
+  rewrite -> (eq2 n m).
+  reflexivity.
+  rewrite -> eq1.
+  reflexivity.
+Qed.
+
+Theorem silly2a : forall (n m : nat),
+  (n,n) = (m,m) ->
+  (forall (q r : nat), (q,q) = (r,r) -> [q] = [r]) ->
+  [n] = [m].
+Proof.
+  intros n m eq1 eq2.
+  apply eq2.
+  apply eq1.
+Qed.
+
+(* Exercise: 2 stars, optional (silly_ex) *)
+
+Theorem silly_ex :
+  (forall n, evenb n = true -> oddb (S n) = true) ->
+  evenb 3 = true ->
+  oddb 4 = true.
+Proof.
+  intros eq1 eq2.
+  apply eq1.
+  apply eq2.
+Qed.
+
+Theorem silly3 : forall (n : nat),
+  true = beq_nat n 5 ->
+  beq_nat (S (S n)) 7 = true.
+Proof.
+  intros n H.
+  symmetry.
+  unfold beq_nat.
+  fold beq_nat.
+  apply H.
+Qed.
+
+(* Exercise: 3 stars, recommended (apply_exercise1) *)
+
+Theorem rev_involutive : forall {X : Type} (l : list X),
+  rev (rev l) = l.
+Proof.
+  intros X l.
+  induction l as [ | n l' ].
+
+  Case "l = nil".
+  unfold rev.
+  reflexivity.
+
+  Case "l n :: l'".
+  unfold rev.
+  fold @rev.
+  rewrite -> rev_snoc.
+  rewrite -> IHl'.
+  reflexivity.
+Qed.
+
+Theorem rev_exercise1 : forall (l l' : list nat),
+  l = rev l' ->
+  l' = rev l.
+Proof.
+  intros l l' H.
+  rewrite -> H.
+  symmetry.
+  apply rev_involutive.
+Qed.
+
+(* Exercise: 1 star (apply_rewrite) *)
+
 (* TODO *)
 
+(* The unfold Tactic *)
+
+(*
+   In these solutions, we have used the unfold tactic from the very start of Basics.v
+   since it lets the reader know exactly what is going on at every step of the
+   way. Too heavy use of simpl can become a crutch that the student ends up
+   relying too much upon. This is quite unfortunate since simpl can at times act
+   as a double-edge sword that can unfold/fold too much so that the proof
+   becomes harder to finish than if the unfolding and folding had been done in a
+   manual step-by-step manner.
+*)
+
+Theorem unfold_example : forall m n,
+  3 + n = m ->
+  plus3 n + 1 = m + 1.
+Proof.
+  intros m n H.
+  unfold plus3.
+  rewrite -> H.
+  reflexivity.
+Qed.
+
+Theorem override_eq : forall {X : Type} x k (f: nat -> X),
+  (override f k x) k = x.
+Proof.
+  intros X x k f.
+  unfold override.
+  rewrite <- beq_nat_refl.
+  reflexivity.
+Qed.
+
+(* Exercise: 2 stars (override_neq) *)
+
+Theorem override_neq : forall {X : Type} x1 x2 k1 k2 (f : nat -> X),
+  f k1 = x1 ->
+  beq_nat k2 k1 = false ->
+  (override f k2 x2) k1 = x1.
+Proof.
+  intros X x1 x2 k1 k2 f Hf Heq.
+  unfold override.
+  rewrite -> Heq.
+  apply Hf.
+Qed.
+
+(* Inversion *)
+
+Theorem eq_add_S : forall (n m : nat),
+  S n = S m -> n = m.
+Proof.
+  intros n m H.
+  inversion H.
+  reflexivity.
+Qed.
+
+Theorem silly4 : forall (n m : nat),
+  [n] = [m] -> n = m.
+Proof.
+  intros n m H.
+  inversion H.
+  reflexivity.
+Qed.
+
+Theorem silly5 : forall (n m o : nat),
+  [n,m] = [o,o] ->
+  [n] = [m].
+Proof.
+  intros n m o H.
+  inversion H.
+  reflexivity.
+Qed.
+
+(* Exercise: 1 star (sillyex1) *)
+
+Example sillyex1 : forall (X : Type) (x y z : X) (l j : list X),
+  x :: y :: l = z :: j ->
+  y :: l = x :: j ->
+  x = y.
+Proof.
+  intros X x y z l j H1 H2.
+  inversion H1.
+  inversion H2.
+  symmetry.
+  apply H0.
+Qed.
+
+Theorem silly6 : forall (n : nat),
+  S n = O ->
+  2 + 2 = 5.
+Proof.
+  intros n contra.
+  inversion contra.
+Qed.
+
+Theorem silly7 : forall (n m : nat),
+  false = true ->
+  [n] = [m].
+Proof.
+  intros n m contra.
+  inversion contra.
+Qed.
+
+(* Exercise: 1 star (sillyex2) *)
+
+Example sillyex2 : forall (X : Type) (x y z : X) (l j : list X),
+  x :: y :: l = [ ] ->
+  y :: l = z :: j ->
+  x = z.
+Proof.
+  intros X x y z l j H1 H2.
+  inversion H1.
+Qed.
+
+Lemma eq_remove_S : forall n m,
+  n = m -> S n = S m.
+Proof.
+  intros n m eq.
+  rewrite -> eq.
+  reflexivity.
+Qed.
+
+Theorem beq_nat_eq : forall n m,
+  true = beq_nat n m -> n = m.
+Proof.
+  intros n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  intro m.
+  destruct m as [ | m' ].
+
+  SCase "m = O".
+  reflexivity.
+
+  SCase "m = S m".
+  unfold beq_nat.
+  intros contra.
+  inversion contra.
+
+  Case "n = S n'".
+  intros m.
+  destruct m as [ | m' ].
+
+  SCase "m = O".
+  unfold beq_nat.
+  intro contra.
+  inversion contra.
+
+  SCase "m = S m'".
+  unfold beq_nat.
+  fold beq_nat.
+  intro H.
+  apply eq_remove_S.
+  apply IHn'.
+  apply H.
+Qed.
+
+(* Exercise: 2 stars (beq_nat_eq_informal) *)
+
+(* TODO *)
+
+(* Exercise: 3 stars (beq_nat_eq') *)
+
+Theorem beq_nat_eq' : forall m n,
+  beq_nat n m = true -> n = m.
+Proof.
+  intros m.
+  induction m as [ | m' ].
+
+  Case "m = O".
+  intro n.
+  induction n as [ | n' ].
+
+  SCase "n = O".
+  reflexivity.
+
+  SCase "n = S n'".
+  unfold beq_nat.
+  intro contra.
+  inversion contra.
+
+  Case "m = S m'".
+  intro n.
+  induction n as [ | n' ].
+
+  SCase "n = O".
+  unfold beq_nat.
+  intro contra.
+  inversion contra.
+
+  SCase "n = S n'".
+  unfold beq_nat.
+  fold beq_nat.
+  intro H.
+  apply eq_remove_S.
+  apply IHm'.
+  apply H.
+Qed.
+
+Theorem length_snoc' : forall (X : Type) (v : X) (l : list X) (n : nat),
+  length l = n -> length (snoc l v) = S n.
+Proof.
+  intros X v l.
+  induction l as [ | v' l' ].
+
+  Case "l = []".
+  intros n eq.
+  unfold snoc.
+  rewrite <- eq.
+  unfold length.
+  reflexivity.
+
+  Case "l = v' :: l'".
+  intros n eq.
+  rewrite <- eq.
+  unfold snoc.
+  fold @snoc.
+  unfold length.
+  fold @length.
+  destruct n as[ | n' ].
+
+  SCase "n = O".
+  inversion eq.
+
+  SCase "n = S n'".
+  apply eq_remove_S.
+  apply IHl'.
+  reflexivity.
+Qed.
+
+(* Practice Session *)
+
+(* Exercise: 2 stars, optional (practice) *)
+
+Theorem beq_nat_O_l : forall n,
+  true = beq_nat O n -> O = n.
+Proof.
+  intro n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  reflexivity.
+
+  Case "n = S n'".
+  unfold beq_nat.
+  intro contra.
+  inversion contra.
+Qed.
+
+Theorem beq_nat_O_r : forall n,
+  true = beq_nat n O -> O = n.
+Proof.
+  intro n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  reflexivity.
+
+  Case "n = S n'".
+  unfold beq_nat.
+  intro contra.
+  inversion contra.
+Qed.
+
+Theorem double_injective : forall n m,
+  double n = double m -> n = m.
+Proof.
+  intros n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  unfold double.
+  fold @double.
+  intros m eq.
+  destruct m as [ | m' ].
+
+  SCase "m = O".
+  reflexivity.
+
+  SCase "m = S m'".
+  inversion eq.
+
+  Case "n = S n'".
+  intros m eq.
+  destruct m as [ | m' ].
+
+  SCase "m = O".
+  inversion eq.
+
+  SCase "m = S m'".
+  apply eq_remove_S.
+  apply IHn'.
+  inversion eq.
+  reflexivity.
+Qed.
+
+(* Varying the Induction Hypothesis *)
+
+(* Exercise: 2 stars, optional (app_ass') *)
+
+Theorem app_ass' : forall (l1 l2 l3 : list nat),
+  (l1 ++ l2) ++ l3 = l1 ++ (l2 ++ l3).
+Proof.
+  intros l1.
+  induction l1 as [ | n l1' ].
+
+  Case "l1 = []".
+  intros l2 l3.
+  unfold app.
+  fold @app.
+  reflexivity.
+
+  Case "l1 = n :: l1'".
+  intros l2 l3.
+  unfold app.
+  fold @app.
+  rewrite -> IHl1'.
+  reflexivity.
+Qed.
+
+(* Exercise: 3 stars (apply_exercise2) *)
+
+Theorem beq_nat_sym : forall (n m : nat),
+  beq_nat n m = beq_nat m n.
+Proof.
+  intro n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  intro.
+  induction m as [ | n' ].
+
+  SCase "m = O".
+  reflexivity.
+
+  SCase "m = S m'".
+  unfold beq_nat.
+  reflexivity.
+
+  Case "n = S n'".
+  intro m.
+  induction m as [ | m' ].
+
+  SCase "m = O".
+  unfold beq_nat.
+  reflexivity.
+
+  SCase "m = S m'".
+  unfold beq_nat.
+  fold beq_nat.
+  apply IHn'.
+Qed.
+
+(* Exercise: 3 stars, recommended (beq_nat_sym_informal) *)
+
+(* TODO *)
+
+(* Using Tactics on Hypotheses *)
+
+Theorem S_inj : forall (n m : nat) (b : bool),
+  beq_nat (S n) (S m) = b ->
+  beq_nat n m = b.
+Proof.
+  intros n m b H.
+  simpl in H.
+  apply H.
+Qed.
+
+Theorem S_inj' : forall (n m : nat) (b : bool),
+  beq_nat (S n) (S m) = b ->
+  beq_nat n m = b.
+Proof.
+  intros n m b H.
+  unfold beq_nat in H.
+  fold beq_nat in H.
+  apply H.
+Qed.
+
+Theorem silly3' : forall (n : nat),
+  (beq_nat n 5 = true -> beq_nat (S (S n)) 7 = true) ->
+  true = beq_nat n 5 ->
+  true = beq_nat (S (S n)) 7.
+Proof.
+  intros n eq H.
+  symmetry in H.
+  apply eq in H.
+  symmetry in H.
+  apply H.
+Qed.
+
+(* Exercise: 3 stars, recommended (plus_n_n_injective) *)
+
+Theorem plus_n_n_injective : forall n m,
+  n + n = m + m ->
+  n = m.
+Proof.
+  intros n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  unfold plus.
+  fold plus.
+  intros m.
+  induction m as [ | m' ].
+
+  SCase "m = O".
+  reflexivity.
+
+  SCase "m = S m'".
+  intro contra.
+  inversion contra.
+
+  Case "n = S n'".
+  intro m.
+  induction m as [ | m' ].
+
+  SCase "m = O".
+  intro contra.
+  inversion contra.
+
+  SCase "m = S m'".
+  intro eq.
+  inversion eq.
+  rewrite <-  plus_n_Sm in H0.
+  rewrite <-  plus_n_Sm in H0.
+  inversion H0.
+  apply IHn' in H1.
+  rewrite -> H1.
+  reflexivity.
+Qed.
+
+(* Using destruct on Compound Expressions *)
+
+Definition sillyfun (n : nat) : bool :=
+  if beq_nat n 3 then false
+    else if beq_nat n 5 then false
+      else false.
+
+Theorem sillyfun_false : forall (n : nat),
+  sillyfun n = false.
+Proof.
+  intro n.
+  unfold sillyfun.
+  destruct (beq_nat n 3).
+
+  Case "(beq_nat n 3) = true".
+  reflexivity.
+
+  Case "(beq_nat n 3) = false".
+  destruct (beq_nat n 5).
+
+  SCase "(beq_nat n 5) = true".
+  reflexivity.
+
+  SCase "(beq_nat n 5) = false".
+  reflexivity.
+Qed.
+
+(* Exercise: 1 star (override_shadow) *)
+
+Theorem override_shadow : forall {X : Type} x1 x2 k1 k2 (f: nat -> X),
+  (override (override f k1 x2) k1 x1) k2 = (override f k1 x1) k2.
+Proof.
+  intros X x1 x2 k1 k2 f.
+  unfold override.
+  destruct (beq_nat k1 k2).
+
+  Case "(beq_nat k1 k2) = true".
+  reflexivity.
+
+  Case "(beq_nat k1 k2) = false".
+  reflexivity.
+Qed.
+
+(* Exercise: 3 stars, recommended (combine_split) *)
+
+Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
+  split l = (l1, l2) -> combine l1 l2 = l.
+Proof.
+  intros X Y l.
+  induction l as [ | [ x y ] l' ].
+
+  Case "l = []".
+  intros l1 l2.
+  unfold split.
+  intro contra.
+  inversion contra.
+  unfold combine.
+  reflexivity.
+
+  Case "l = (x,y) :: l'".
+  intros l1 l2.
+  unfold split.
+  fold @split.
+  destruct (split l') as [xs ys].
+  unfold fst.
+  unfold snd.
+  destruct l1.
+
+  SCase "l1 = []".
+  unfold combine.
+  intro contra.
+  inversion contra.
+
+  SCase "l2 = (x,y) :: l'".
+  intro H.
+  inversion H.
+  unfold combine.
+  fold @combine.
+  rewrite <- H2.
+  rewrite IHl'.
+  reflexivity.
+  reflexivity.
+Qed.
+
+(* Exercise: 3 stars, optional (split_combine) *)
+
+(* Helper lemma *)
+Lemma length_O_implies_nil : forall {X : Type} (l : list X),
+  length l = O -> l = [].
+Proof.
+  intros X l H.
+  destruct l as [ | n l' ].
+
+  Case "l = nil".
+  reflexivity.
+
+  Case "l = n :: l'".
+  inversion H.
+Qed.
+
+Theorem split_combine : forall (X Y : Type) (l1 : list X) (l2 : list Y),
+  length l1 = length l2 -> split (combine l1 l2) = (l1, l2).
+Proof.
+  intros X Y.
+  induction l1 as [ | n1' l1' ].
+
+  Case "l1 = nil".
+  intros l2 H.
+  unfold combine.
+  unfold split.
+  unfold length in H.
+  fold @length in H.
+  rewrite (length_O_implies_nil l2).
+  reflexivity.
+  rewrite <- H.
+  reflexivity.
+
+  Case "l1 = n' :: l1'".
+  intros l2.
+  induction l2 as [ | n2' l2' ].
+
+  SCase "l2 = []".
+  unfold combine.
+  fold @combine.
+  unfold split.
+  intro H.
+  inversion H.
+
+  SCase "l2 = n2' :: l2'".
+  unfold combine.
+  fold @combine.
+  intro H.
+  inversion H.
+  unfold split.
+  fold @split.
+  apply IHl1' in H1.
+  rewrite H1.
+  reflexivity.
+Qed.
+
+(* The remember Tactic *)
+
+Definition sillyfun1 (n : nat) : bool :=
+  if beq_nat n 3 then true
+    else if beq_nat n 5 then true
+      else false.
+
+Theorem sillyfun1_odd : forall (n : nat),
+  sillyfun1 n = true ->
+  oddb n = true.
+Proof.
+  intros n eq.
+  unfold sillyfun1 in eq.
+  remember (beq_nat n 3) as e3.
+  destruct e3.
+
+  Case "e3 = true".
+  apply beq_nat_eq in Heqe3.
+  rewrite -> Heqe3.
+  unfold oddb. unfold evenb. unfold negb.
+  reflexivity.
+
+  Case "e3 = false".
+  remember (beq_nat n 5) as e5.
+  destruct e5.
+
+  SCase "e5 = true".
+  apply beq_nat_eq in Heqe5.
+  rewrite -> Heqe5.
+  unfold oddb. unfold evenb. unfold negb.
+  reflexivity.
+
+  SCase "e5 = false".
+  inversion eq.
+Qed.
+
+(* Exercise: 2 stars (override_same) *)
+
+Theorem override_same : forall {X : Type} x1 k1 k2 (f : nat -> X),
+  f k1 = x1 ->
+  (override f k1 x1) k2 = f k2.
+Proof.
+  intros X x1 k1 k2 f eq.
+  unfold override.
+  remember (beq_nat k1 k2) as ek1k2.
+  destruct ek1k2.
+
+  Case "ek1k2 = true".
+  rewrite <- eq.
+  apply beq_nat_eq in Heqek1k2.
+  rewrite Heqek1k2.
+  reflexivity.
+
+  Case "ek1k2 = false".
+  reflexivity.
+Qed.
+
+(* Exercise: 3 stars, optional (filter_exercise) *)
+
+Theorem filter_exercise : forall (X : Type) (test : X -> bool)
+  (x : X) (l lf : list X),
+  filter test l = x :: lf -> test x = true.
+Proof.
+  intros X test x l.
+  induction l as [ | n' l' ].
+
+  Case "l = []".
+  unfold filter.
+  intro lf.
+  intro contra.
+  inversion contra.
+
+  Case "l = n' :: l'".
+  unfold filter.
+  fold @filter.
+  remember (test n') as en'.
+  destruct en'.
+
+  SCase "en' = true".
+  intros lf eq.
+  rewrite Heqen'.
+  inversion eq.
+  reflexivity.
+
+  intros lf eq.
+  apply IHl' in eq.
+  apply eq.
+Qed.
+
+(* The apply ... with ... Tactic *)
+
+(* TODO *)
 
 (* end-of-Poly.v *)
