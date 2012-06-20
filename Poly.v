@@ -1343,6 +1343,299 @@ Qed.
 
 (* The apply ... with ... Tactic *)
 
+Example trans_eq_example : forall (a b c d e f : nat),
+  [a,b] = [c,d] ->
+  [c,d] = [e,f] ->
+  [a,b] = [e,f].
+Proof.
+  intros a b c d e f eq1 eq2.
+  rewrite -> eq1.
+  rewrite -> eq2.
+  reflexivity.
+Qed.
+
+Theorem trans_eq : forall {X : Type} (n m o : X),
+  n = m -> m = o -> n = o.
+Proof.
+  intros X n m o eq1 eq2.
+  rewrite -> eq1.
+  rewrite -> eq2.
+  reflexivity.
+Qed.
+
+Example trans_eq_example' : forall (a b c d e f : nat),
+  [a,b] = [c,d] ->
+  [c,d] = [e,f] ->
+  [a,b] = [e,f].
+Proof.
+  intros a b c d e f eq1 eq2.
+  apply trans_eq with (m:=[c,d]). (* could also just 'with (c,d)' *)
+  apply eq1.
+  apply eq2.
+Qed.
+
+(* Exercise: 3 stars, recommended (apply_exercises) *)
+
+Example trans_eq_exercise : forall (n m o p : nat),
+  m = (minustwo o) ->
+  (n + p) = m ->
+  (n + p) = (minustwo o).
+Proof.
+  intros n m o p eq1 eq2.
+  apply trans_eq with m.
+  apply eq2.
+  apply eq1.
+Qed.
+
+Theorem beq_nat_trans : forall n m p,
+  true = beq_nat n m ->
+  true = beq_nat m p ->
+  true = beq_nat n p.
+Proof.
+  intros n m p eq1 eq2.
+  apply beq_nat_eq in eq1.
+  rewrite -> eq1.
+  apply eq2.
+Qed.
+
+Theorem override_permute : forall {X : Type} x1 x2 k1 k2 k3 (f : nat -> X),
+  false = beq_nat k2 k1 ->
+  (override (override f k2 x2) k1 x1) k3 = (override (override f k1 x1) k2 x2) k3.
+Proof.
+  intros X x1 x2 k1 k2 k3 f.
+  unfold override.
+  remember (beq_nat k1 k3) as k1k3.
+  remember (beq_nat k2 k3) as k2k3.
+  destruct k1k3.
+  destruct k2k3.
+  apply beq_nat_eq in Heqk1k3.
+  apply beq_nat_eq in Heqk2k3.
+  rewrite <- Heqk2k3 in Heqk1k3.
+  assert (k2 = k1 -> true = beq_nat k1 k2).
+
+  Case "Proof of Assertion".
+    destruct k1.
+    destruct k2.
+    reflexivity.
+
+    intro contra.
+    inversion contra.
+
+    destruct k1.
+    intro H.
+    inversion H.
+    unfold beq_nat.
+    reflexivity.
+
+    intro eq.
+    rewrite <- eq.
+    apply beq_nat_refl.
+
+  symmetry in Heqk1k3.
+  apply H in Heqk1k3.
+  intro contra.
+  rewrite beq_nat_sym in contra.
+  rewrite <- contra in Heqk1k3.
+  inversion Heqk1k3.
+
+  intro eq.
+  reflexivity.
+
+  destruct k2k3.
+  intro eq.
+  reflexivity.
+
+  intro eq.
+  reflexivity.
+Qed.
+
+(* Review *)
+
+(* No code in this section. *)
+
+(* Additional Exercises *)
+
+(* Exercise: 2 stars, optional (fold_length) *)
+
+Definition fold_length {X : Type} (l : list X) : nat :=
+  fold (fun _ n => S n) l O.
+
+Example test_fold_length1 : fold_length [4,7,0] = 3.
+Proof. reflexivity. Qed.
+
+Theorem fold_length_correct : forall X (l : list X),
+  fold_length l = length l.
+Proof.
+  intros X l.
+  induction l as [ | n l' ].
+
+  Case "l = []".
+  unfold fold_length.
+  unfold fold.
+  unfold length.
+  reflexivity.
+
+  Case "l = n :: l'".
+  unfold length.
+  fold @length.
+  rewrite <- IHl'.
+  unfold fold_length.
+  unfold fold.
+  fold @fold.
+  reflexivity.
+Qed.
+
+(* Exercise: 3 stars, recommended (fold_map) *)
+
+Definition fold_map {X Y : Type} (f : X -> Y) (l : list X) : list Y :=
+  fold (fun x y => cons (f x) y) l nil.
+
+Theorem fold_map_correct : forall X Y (f: X -> Y) (l : list X),
+  fold_map f l = map f l.
+Proof.
+  intros X Y f l.
+  induction l as [ | n l' ].
+
+  Case "l = []".
+  unfold map.
+  unfold fold_map.
+  unfold fold.
+  reflexivity.
+
+  Case "l = n :: l'".
+  unfold map.
+  fold @map.
+  rewrite <- IHl'.
+  unfold fold_map.
+  unfold fold.
+  fold @fold.
+  reflexivity.
+Qed.
+
+(* Exercise: 2 stars, optional (mumble_grumble) *)
+
+Module MumbleBaz.
+
+Inductive mumble : Type :=
+  | a : mumble
+  | b : mumble -> nat -> mumble
+  | c : mumble.
+
+Inductive grumble (X : Type) : Type :=
+  | d : mumble -> grumble X
+  | e : X -> grumble X.
+
+(*
+   Q: Which of the following are well-typed elements of grumble X for some type X?
+   a: d (b a 5)
+   b: d mumble (b a 5)
+   c: d bool (b a 5)
+   d: e bool true
+   e: e mumble (b c 0)
+   f: e bool (b c 0)
+   g: c
+
+   A: b, c, d, e, g
+*)
+
+(* Exercise: 2 stars, optional (baz_num_elts) *)
+
+Inductive baz : Type :=
+  | x : baz -> baz
+  | y : baz -> bool -> baz.
+
+(* It has exactly two, x and y, since you cannot create more. *)
+
+End MumbleBaz.
+
+(* Exercise: 4 stars, recommended (forall_exists_challenge) *)
+
+Fixpoint forallb {X: Type} (f : X -> bool) (l : list X) : bool :=
+  match l with
+    | [] => true
+    | h :: t => andb (f h) (forallb f t)
+  end.
+
+Example forallb1 : forallb oddb [1,3,5,7,9] = true.
+Proof. reflexivity. Qed.
+Example forallb2 : forallb negb [false,false] = true.
+Proof. reflexivity. Qed.
+Example forallb3 : forallb evenb [0,2,4,5] = false.
+Proof. reflexivity. Qed.
+Example forallb4 : forallb (beq_nat 5) [] = true.
+Proof. reflexivity. Qed.
+
+Fixpoint existsb {X: Type} (f : X -> bool) (l : list X) : bool :=
+  match l with
+    | [] => false
+    | h :: t => orb (f h) (existsb f t)
+  end.
+
+Example existsb1 : existsb (beq_nat 5) [0,2,3,6] = false.
+Proof. reflexivity. Qed.
+Example existsb2 : existsb (andb true) [true,true,false] = true.
+Proof. reflexivity. Qed.
+Example existsb3 : existsb oddb [1,0,0,0,0,3] = true.
+Proof. reflexivity. Qed.
+Example existsb4 : existsb evenb [] = false.
+Proof. reflexivity. Qed.
+
+Definition existsb' {X:Type} (f : X -> bool) (l : list X) : bool :=
+  negb (forallb (fun n => negb (f n)) l).
+
+Theorem existsb_existsb' :
+  forall (X : Type) (f : X -> bool) (l : list X),
+    existsb f l = existsb' f l.
+Proof.
+  intros X f l.
+  induction l as [ | n l' ].
+
+  Case "l = []".
+  unfold existsb.
+  unfold existsb'.
+  unfold forallb.
+  unfold negb.
+  reflexivity.
+
+  Case "l = n :: l'".
+  unfold existsb.
+  fold @existsb.
+  rewrite -> IHl'.
+  unfold existsb'.
+  unfold forallb.
+  fold @forallb.
+  destruct (forallb (fun n0 : X => negb (f n0)) l').
+
+  SCase "forallb... = true".
+  unfold negb.
+  unfold orb.
+  destruct (f n).
+
+  SSCase "(f n) = true".
+  unfold andb.
+  reflexivity.
+
+  SSCase "(f n) = false".
+  reflexivity.
+
+  SCase "forallb... = false".
+  destruct (f n).
+
+  SSCase "(f n) = true".
+  unfold negb.
+  unfold andb.
+  unfold orb.
+  reflexivity.
+
+  SSCase "(f n) = false".
+  unfold negb.
+  unfold andb.
+  unfold orb.
+  reflexivity.
+Qed.
+
+(* Exercise: 2 stars, optional (index_informal) *)
+
 (* TODO *)
 
 (* end-of-Poly.v *)

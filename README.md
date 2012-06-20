@@ -26,4 +26,4 @@ Vilhelm Sjoberg and Brent Yorgey.
   - 'apply_rewrite'
   - 'beq_nat_eq_informal'
   - 'beq_nat_sym_informal'
-  - From 'The apply ... with ... Tactic' section and down.
+  - 'index_informal'
