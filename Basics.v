@@ -1,5 +1,7 @@
-(* Basics.v *)
-(* Basics - Functional Programming *)
+(* File: Basics.v *)
+(* Title: Basics - Functional Programming *)
+(* Author: Peter Urbak <peteru@dragonwasrobot.com *)
+(* Version: 2011-06-21 *)
 
 (*
    Notes to the reader:

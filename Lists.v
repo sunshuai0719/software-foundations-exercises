@@ -1,5 +1,7 @@
-(* Lists.v *)
-(* Lists - Data Structures in Coq *)
+(* File: Lists.v *)
+(* Title: Lists - Data Structures in Coq *)
+(* Author: Peter Urbak <peteru@dragonwasrobot.com *)
+(* Version: 2011-06-21 *)
 
 Require Export Basics.
 

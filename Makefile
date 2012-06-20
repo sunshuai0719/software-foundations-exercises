@@ -1,8 +1,11 @@
 # MakeFile for the 'Software Foundations Exercises' project.
 
-all : Poly
+all : Gen
+
+Gen: Poly
 
 Poly: Lists
+	coqc Poly.v
 
 Lists: Basics
 	coqc Lists.v

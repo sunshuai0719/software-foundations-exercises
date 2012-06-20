@@ -1,5 +1,7 @@
-(* Poly.v *)
-(* Poly - Polymorphism and Higher-Order Functions. *)
+(* File: Poly.v *)
+(* Title: Poly - Polymorphism and Higher-Order Functions. *)
+(* Author: Peter Urbak <peteru@dragonwasrobot.com *)
+(* Version: 2011-06-21 *)
 
 Require Export Lists.
 
