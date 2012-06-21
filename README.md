@@ -28,4 +28,15 @@ Vilhelm Sjoberg and Brent Yorgey.
   - 'beq_nat_sym_informal'
   - 'index_informal'
 - Gen.
-  - everything.
+  - 'index_after_last_informal'
+  - 'app_length_twice' (almost done).
+- Prop.
+  - Everything.
+- Logic.
+  - Everything.
+- Rel.
+  - Everything.
+- SfLib.
+  - Everything.
+- Imp.
+  - Everything.
