@@ -36,7 +36,5 @@ Vilhelm Sjoberg and Brent Yorgey.
   - Everything.
 - Rel.
   - Everything.
-- SfLib.
-  - Everything.
 - Imp.
   - Everything.

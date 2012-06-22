@@ -1,6 +1,18 @@
 # MakeFile for the 'Software Foundations Exercises' project.
 
-all : Prop
+all : Imp
+
+Imp: SfLib
+	coqc Imp.v
+
+SfLib:
+	coqc SfLib.v
+
+Rel: Logic
+	coqc Rel.v
+
+Logic: Prop
+	coqc Logic.v
 
 Prop: Gen
 	coqc Prop.v
