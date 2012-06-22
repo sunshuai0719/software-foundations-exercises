@@ -10,7 +10,7 @@ Vilhelm Sjoberg and Brent Yorgey.
 
 - **Author:** Peter Urbak, peter@dragonwasrobot.com
 - **Created:** 2012-06-03
-- **Last Modified:** 2012-06-21
+- **Last Modified:** 2012-06-22
 - **URL:** https://github.com/dragonwasrobot/software-foundations-exercises
 - **License:** Gnu General Public License
 
@@ -31,7 +31,7 @@ Vilhelm Sjoberg and Brent Yorgey.
   - 'index_after_last_informal'
   - 'app_length_twice' (almost done).
 - Prop.
-  - Everything.
+  - Everything from Induction Hypotheses and below.
 - Logic.
   - Everything.
 - Rel.
