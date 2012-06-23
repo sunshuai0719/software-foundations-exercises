@@ -36,9 +36,9 @@ Vilhelm Sjoberg and Brent Yorgey.
   - 'ev_MyProp'
   - 'MyProp_pfobj'
   - 'p_provability'
-  - All of Additional Exercises
+  - All of Additional Exercises.
 - Logic.
-  - Everything.
+  - From 'Iff' and down.
 - Rel.
   - Everything.
 - Imp.

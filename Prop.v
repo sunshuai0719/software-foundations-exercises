@@ -1,7 +1,7 @@
 (* File: Prop.v *)
 (* Title: Prop - Propositions and Evidence *)
 (* Author: Peter Urbak <peteru@dragonwasrobot.com *)
-(* Version: 2011-06-21 *)
+(* Version: 2011-06-24 *)
 
 Require Export Poly.
 
