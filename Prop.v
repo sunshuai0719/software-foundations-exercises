@@ -365,6 +365,368 @@ Check foo'_ind.
 
 (* Induction Hypotheses *)
 
+Definition P_mOr (n : nat) : Prop :=
+  n * O = O.
+
+Definition P_mOr' : nat -> Prop :=
+  fun n => n * O = O.
+
+Theorem mult_O_r'' : forall n : nat,
+  P_mOr n.
+Proof.
+  apply nat_ind.
+  Case "n = O". reflexivity.
+  Case "n = S n'".
+  unfold P_mOr. simpl. intros n' IHn'.
+  apply IHn'.
+Qed.
+
+(* Evenness Again *)
+
+Inductive ev : nat -> Prop :=
+  | ev_O : ev O
+  | ev_SS : forall n : nat, ev n -> ev (S (S n)).
+
+(* Exercise: 1 star, optional (four_ev) *)
+
+Theorem four_ev' : ev 4.
+Proof.
+  apply ev_SS.
+  apply ev_SS.
+  apply ev_O.
+Qed.
+
+Definition four_ev : ev 4 :=
+  (ev_SS 2 (ev_SS 0 ev_O)).
+
+(* Exercise: 2 stars (ev_plus4) *)
+
+Theorem ev_plus' : forall n, ev n -> ev (4 + n).
+Proof.
+  intros n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  unfold plus.
+  intro H.
+  apply ev_SS. apply ev_SS. apply ev_O.
+
+  Case "n = S n'".
+  intro H.
+  simpl.
+  apply ev_SS. apply ev_SS.
+  apply H.
+Qed.
+
+Definition ev_plus4 : forall n, ev n -> ev (4 + n) :=
+  ev_plus'. (* Probably not correct. *)
+
+(* Exercise: 2 stars (double_even) *)
+
+Theorem double_even : forall n,
+  ev (double n).
+Proof.
+  intro n.
+  induction n as [ | n' ].
+
+  Case "n = O".
+  simpl.
+  apply ev_O.
+
+  Case "n = S n'".
+  simpl.
+  apply ev_SS.
+  apply IHn'.
+Qed.
+
+(* Exercise: 4 stars, optional (double_even_pfobj) *)
+
+Print double_even.
+(* ===> double_even =
+   fun n : nat =>
+   nat_ind (fun n0 : nat => ev (double n0)) (let Case := "n = O" in ev_O)
+      (fun (n' : nat) (IHn' : ev (double n')) =>
+      let Case := "n = S n'" in ev_SS (double n') IHn') n
+         : forall n : nat, ev (double n) *)
+
+(* Reasoning by Induction Over Evidence *)
+
+Theorem ev_minus2 : forall n,
+  ev n -> ev (pred (pred n)).
+Proof.
+  intros n E.
+  destruct E as [ | n' E' ].
+
+  Case "E = ev_O".
+  simpl.
+  apply ev_O.
+
+  Case "E = ev_SS n'".
+  simpl.
+  apply E'.
+Qed.
+
+(* Exercise: 1 star (ev_minus2_n) *)
+
+(* If we destruct on n we have to prove ev O and ev S n', which we can't. *)
+
+Theorem ev_even : forall n,
+  ev n -> even n.
+Proof.
+  intros n E.
+  induction E as [ | n' E' ].
+
+  Case "E = ev_O".
+  unfold even.
+  unfold evenb.
+  reflexivity.
+
+  Case "E = ev_SS n' E'".
+  unfold even.
+  unfold evenb.
+  fold @evenb.
+  apply IHE'.
+Qed.
+
+(* Exercise: 1 star (ev_even_n) *)
+
+(* We would end up in the same situation as the exercise before. *)
+
+(* Exercise: 1 star (l_fails) *)
+
+(* The proofs fails because it want us to proof ev (S n) forall n : nat, which is not
+   true. *)
+
+(* Exercise: 2 stars (ev_sum) *)
+
+Theorem ev_sum : forall n m,
+  ev n -> ev m -> ev (n + m).
+Proof.
+  intros n m En Em.
+  induction En as [ | n' En' ].
+
+  Case "En = ev_O".
+  destruct Em as [ | m' Em' ].
+
+  SCase "Em = ev_O".
+  unfold plus.
+  apply ev_O.
+
+  SCase "Em = ev_SS m' E'".
+  unfold plus.
+  apply ev_SS.
+  apply Em'.
+
+  Case "En = ev_SS n' E'".
+  destruct Em as [ | m' Em' ].
+
+  SCase "Em = ev_O".
+  rewrite <- plus_n_O.
+  apply ev_SS.
+  apply En'.
+
+  SCase "Em = ev_SS m' E'".
+  rewrite <-2 plus_n_Sm.
+  simpl.
+  apply ev_SS.
+  rewrite ->2 plus_n_Sm.
+  apply IHEn'.
+Qed.
+
+Theorem SSev_even : forall n,
+  ev (S (S n)) -> ev n.
+Proof.
+  intros n E.
+  inversion E as [ | n' E' ].
+  apply E'.
+Qed.
+
+Print SSev_even.
+
+(* Exercise: 1 star (inversion_practice) *)
+
+Theorem SSSSev_even : forall n,
+  ev (S (S (S (S n)))) -> ev n.
+Proof.
+  intros n E.
+  inversion E as [ | n' E' ].
+  inversion E' as [ | n'' E'' ].
+  apply E''.
+Qed.
+
+Theorem even5_nonsense :
+  ev 5 -> 2 + 2 = 9.
+Proof.
+  intros E.
+  inversion E as [ | n' E' ].
+  inversion E' as [ | n'' E'' ].
+  inversion E''.
+Qed.
+
+Theorem ev_minus2' : forall n,
+  ev n -> ev (pred (pred n)).
+Proof.
+  intros n E.
+  inversion E as [ | n' E' ].
+
+  Case "E = ev_O".
+  simpl.
+  apply ev_O.
+
+  Case "E = ev_SS n' E'".
+  simpl.
+  apply E'.
+Qed.
+
+(* Exercise: 3 stars (ev_ev_even) *)
+
+Theorem ev_ev_even : forall n m,
+  ev (n + m) -> ev n -> ev m.
+Proof.
+  intros n m E_n_m E_n.
+  induction E_n as [ | n' E_n' ].
+
+  Case "E = ev_O".
+  apply E_n_m.
+
+  Case "E = ev_SS n' E'".
+  apply IHE_n'.
+  inversion E_n_m.
+  apply H0.
+Qed.
+
+(* Exercise: 3 stars, optional (ev_plus_plus) *)
+
+Theorem ev_plus_plus : forall n m p,
+  ev (n + m) -> ev (n + p) -> ev (m + p).
+Proof.
+  intros n m p.
+  intros E_n_m.
+  rewrite (plus_comm m p).
+  apply ev_ev_even.
+  rewrite (plus_comm n p).
+  rewrite plus_swap.
+  rewrite -> plus_assoc.
+  rewrite -> plus_assoc.
+  rewrite <- plus_assoc.
+  apply ev_sum.
+  rewrite <- double_plus.
+  apply double_even.
+  apply E_n_m.
+Qed.
+
+(* Why Define Propositions Inductively? *)
+
+Inductive MyProp : nat -> Prop :=
+  | MyProp1 : MyProp 4
+  | MyProp2 : forall n : nat, MyProp n -> MyProp (4 + n)
+  | MyProp3 : forall n : nat, MyProp (2 + n) -> MyProp n.
+
+Theorem MyProp_ten : MyProp 10.
+Proof.
+  apply MyProp3.
+  simpl.
+  assert (12 = 4 + 8) as H12.
+    Case "Proof of assertion". reflexivity.
+  rewrite -> H12.
+  apply MyProp2.
+  assert (8 = 4 + 4) as H8.
+    Case "Proof of assertion". reflexivity.
+  rewrite -> H8.
+  apply MyProp2.
+  apply MyProp1.
+Qed.
+
+(* Exercise: 2 stars (MyProp) *)
+
+Theorem MyProp_O : MyProp O.
+Proof.
+  apply MyProp3.
+  apply MyProp3.
+  assert (4 = 2 + 2) as H4.
+    Case "Proof of assertion". reflexivity.
+  rewrite -> plus_assoc.
+  rewrite <- H4.
+  rewrite <- plus_n_O.
+  apply MyProp1.
+Qed.
+
+Theorem MyProp_plustwo : forall n : nat,
+  MyProp n -> MyProp (S (S n)).
+Proof.
+  intros n E.
+  destruct E as [ | n' E' | n' E' ].
+
+  Case "E = MyProp 4".
+  apply MyProp3.
+  assert (8 = 2 + 6) as H8.
+    SCase "Proof of assertion". reflexivity.
+  rewrite <- H8.
+  assert (8 = 4 + 4) as H4.
+    SCase "Proof of assertion". reflexivity.
+  rewrite -> H4.
+  apply MyProp2.
+  apply MyProp1.
+
+  Case "E = MyProp (4 + n)".
+  apply MyProp3.
+  assert (8 + n' = 2 + S (S (4 + n'))) as H2S.
+    SCase "Proof of assertion". reflexivity.
+  rewrite <- H2S.
+  assert (8 + n' = 4 + 4 + n') as H4.
+    SCase "Proof of assertion". reflexivity.
+  rewrite -> H4.
+  rewrite <- plus_assoc.
+  apply MyProp2.
+  apply MyProp2.
+  apply E'.
+
+  Case "E = MyProp (S (S n'))".
+  apply E'.
+Qed.
+
+Theorem MyProp_ev : forall n : nat,
+  ev n -> MyProp n.
+Proof.
+  intros n E.
+  induction E as [ | n' E' ].
+
+  Case "E = ev_O".
+  apply MyProp_O.
+
+  Case "E = ev_SS n' E'".
+  apply MyProp_plustwo.
+  apply IHE'.
+Qed.
+
+(* Exercise: 3 stars (ev_MyProp) *)
+
+Theorem ev_MyProp : forall n : nat,
+  MyProp n -> ev n.
+Proof.
+  intros n E.
+  induction E as [ | n' E' | n' E' ].
+
+  Case "E = MyProp 4".
+  apply ev_SS. apply ev_SS. apply ev_O.
+
+  Case "E = MyProp (4 + n')".
+  apply ev_plus4.
+  apply IHE'.
+
+  Case "E = MyProp (2 + n')".
+  apply SSev_even.
+  apply IHE'.
+Qed.
+
+(* Exercise: 3 stars, optional (ev_MyProp_informal) *)
+
 (* TODO *)
+
+(* The Big Picture: Coq's Two Universes *)
+
+
+
+
 
 (* end-of-Prop.v *)
