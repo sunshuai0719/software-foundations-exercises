@@ -38,7 +38,9 @@ Vilhelm Sjoberg and Brent Yorgey.
   - 'p_provability'
   - All of Additional Exercises.
 - Logic.
-  - From 'Iff' and down.
+  - 'double_neg_inf'
+  - 'informal_not_PNP'
+  - 'classic_axioms'
 - Rel.
   - Everything.
 - Imp.
