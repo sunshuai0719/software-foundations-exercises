@@ -906,6 +906,4 @@ Qed.
 
 (* The Coq Trusted Computing Base *)
 
-
-
 (* end-of-Logic.v *)
