@@ -40,7 +40,7 @@ Vilhelm Sjoberg and Brent Yorgey.
 - Logic.
   - 'double_neg_inf'
   - 'informal_not_PNP'
-  - 'classic_axioms'
+  - 'classic_axioms' and down.
 - Rel.
   - Everything.
 - Imp.
