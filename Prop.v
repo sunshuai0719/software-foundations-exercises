@@ -1,9 +1,13 @@
 (* File: Prop.v *)
 (* Title: Prop - Propositions and Evidence *)
-(* Author: Peter Urbak <peteru@dragonwasrobot.com *)
-(* Version: 2011-06-24 *)
+(* Author: Peter Urbak <peteru@dragonwasrobot.com> *)
+(* Version: 2012-09-24 *)
 
 Require Export Poly.
+
+(* Inductively Defined Propositions *)
+
+
 
 (* Programming with Propositions *)
 

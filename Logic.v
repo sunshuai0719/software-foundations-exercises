@@ -1,7 +1,7 @@
 (* File: Logic.v *)
 (* Title: Logic - Logic in Coq *)
 (* Author: Peter Urbak <peteru@dragonwasrobot.com *)
-(* Version: 2011-06-24 *)
+(* Version: 2011-09-07 *)
 
 Require Export "Prop".
 

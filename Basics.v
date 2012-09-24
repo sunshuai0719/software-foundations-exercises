@@ -1,7 +1,7 @@
 (* File: Basics.v *)
 (* Title: Basics - Functional Programming *)
-(* Author: Peter Urbak <peteru@dragonwasrobot.com *)
-(* Version: 2011-06-21 *)
+(* Author: Peter Urbak <peteru@dragonwasrobot.com> *)
+(* Version: 2012-09-24 *)
 
 (*
    Notes to the reader:
@@ -231,6 +231,7 @@ Notation "x * y" := (mult x y)
   : nat_scope.
 
 Check ((0 + 1) + 1).
+
 Fixpoint beq_nat (n m : nat) : bool :=
   match n with
     | O => match m with
@@ -935,6 +936,56 @@ Proof.
   reflexivity.
 Qed.
 
+(* Exercise: 3 stars, optional *)
+
+Theorem bool_fn_applied_thrice :
+  forall (f : bool -> bool) (b : bool),
+  f (f (f b)) = f b.
+Proof.
+  intros f b.
+  destruct b.
+
+  Case "b = true".
+  remember (f true) as ftrue.
+  destruct ftrue.
+
+  SCase "f true = true".
+  rewrite <- Heqftrue.
+  symmetry.
+  apply Heqftrue.
+
+  SCase "f true = false".
+  remember (f false) as ffalse.
+  destruct ffalse.
+
+  SSCase "f false = true".
+  symmetry.
+  apply Heqftrue.
+
+  SSCase "f false = false".
+  symmetry.
+  apply Heqffalse.
+  remember (f false) as ffalse.
+  destruct ffalse.
+
+  SCase "f false = true".
+  remember (f true) as ftrue.
+  destruct ftrue.
+
+  SSCase "f true = true".
+  symmetry.
+  apply Heqftrue.
+
+  SSCase "f true = false".
+  symmetry.
+  apply Heqffalse.
+
+  SCase "f false = false".
+  rewrite <- Heqffalse.
+  symmetry.
+  apply Heqffalse.
+Qed.
+
 (* Exercise: 4 stars, recommended (binary) *)
 
 (* a: First, write an inductive definition of the type [bin] corresponding to
@@ -1033,6 +1084,5 @@ Fixpoint converge (n : nat) : nat :=
     | n => converge (minusOne n)
   end.
 *)
-
 
 (* end-of-Basics.v *)

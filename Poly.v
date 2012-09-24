@@ -1,7 +1,7 @@
 (* File: Poly.v *)
 (* Title: Poly - Polymorphism and Higher-Order Functions. *)
-(* Author: Peter Urbak <peteru@dragonwasrobot.com *)
-(* Version: 2011-06-21 *)
+(* Author: Peter Urbak <peteru@dragonwasrobot.com> *)
+(* Version: 2012-09-24 *)
 
 Require Export Lists.
 
@@ -124,15 +124,16 @@ Definition list123''' := [1, 2, 3].
 
 (* Exercise: 2 stars, optional (poly_exercises) *)
 
-Fixpoint repeat (X : Type) (n : X) (count : nat) : list X :=
+Fixpoint repeat' (X : Type) (n : X) (count : nat) : list X :=
   match count with
     | O => nil
-    | S n' => n :: (repeat X n n')
+    | S n' => n :: (repeat' X n n')
   end.
 
 Example test_repeat1 :
-  repeat bool true 2 = cons true (cons true nil).
-Proof. reflexivity. Qed.
+  repeat' bool true 2 = cons true (cons true nil).
+Proof.
+  reflexivity. Qed.
 
 Theorem nil_app : forall (X : Type) (l : list X),
   app [ ] l = l.
@@ -764,9 +765,9 @@ Example sillyex1 : forall (X : Type) (x y z : X) (l j : list X),
 Proof.
   intros X x y z l j H1 H2.
   inversion H1.
+  subst.
   inversion H2.
-  symmetry.
-  apply H0.
+  reflexivity.
 Qed.
 
 Theorem silly6 : forall (n : nat),
@@ -1170,6 +1171,7 @@ Proof.
   unfold split.
   intro contra.
   inversion contra.
+  subst.
   unfold combine.
   reflexivity.
 
@@ -1190,9 +1192,9 @@ Proof.
   SCase "l2 = (x,y) :: l'".
   intro H.
   inversion H.
+  subst.
   unfold combine.
   fold @combine.
-  rewrite <- H2.
   rewrite IHl'.
   reflexivity.
   reflexivity.

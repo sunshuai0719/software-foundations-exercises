@@ -1,7 +1,7 @@
 (* File: Lists.v *)
 (* Title: Lists - Data Structures in Coq *)
-(* Author: Peter Urbak <peteru@dragonwasrobot.com *)
-(* Version: 2011-06-21 *)
+(* Author: Peter Urbak <peteru@dragonwasrobot.com> *)
+(* Version: 2012-09-24 *)
 
 Require Export Basics.
 
@@ -195,7 +195,7 @@ Proof. unfold countoddmembers. unfold evenb. reflexivity. Qed.
 Example test_countoddmembers3: countoddmembers nil = 0.
 Proof. unfold countoddmembers. unfold evenb. reflexivity. Qed.
 
-(* Exercise: 2 stars (alternate) *)
+(* Exercise: 3 stars (alternate) *)
 
 Fixpoint alternate (l1 l2 : natlist) : natlist :=
   match l1, l2 with
@@ -210,6 +210,22 @@ Proof.
   intros h1 h2 t1 t2.
   unfold alternate.
   fold alternate.
+  reflexivity.
+Qed.
+
+Lemma alternate_nil_l_case : forall (h1 : nat) (t1 : natlist),
+  alternate [] (h1 :: t1) = (h1 :: t1).
+Proof.
+  intros h1 t1.
+  unfold alternate.
+  reflexivity.
+Qed.
+
+Lemma alternate_nil_r_case : forall (h1 : nat) (t1 : natlist),
+  alternate (h1 :: t1) [] = (h1 :: t1).
+Proof.
+  intros h1 t1.
+  unfold alternate.
   reflexivity.
 Qed.
 
@@ -803,9 +819,32 @@ Qed.
 (* Exercise: 3 stars, optional (bag_count_sum) *)
 
 Theorem bag_count_sum : forall (n : nat) (s1 s2 : bag),
-  (count n s1) + (count n s2) = count n (sum s1 s2).
+  (count n s1) + (count n s2) = count n (alternate s1 s2).
 Proof.
-  Admitted. (* TODO *)
+  intros n s1 s2.
+  induction s1 as [ | n1' s1' ].
+
+  Case "s1 = []".
+  induction s2 as [ | n2' s2' ].
+
+  SCase "s2 = []".
+  simpl.
+  reflexivity.
+
+  SCase "s2 = n2' :: s2'".
+  simpl.
+  reflexivity.
+
+  Case "s1 = n1' :: s1'".
+  induction s2 as [ | n2' s2' ].
+
+  SCase "s2 = []".
+  simpl.
+  rewrite -> plus_O_r.
+  reflexivity.
+
+  SCase "s2 = n2' :: s2'".
+  Admitted. (* to be continued *)
 
 (* Exercise: 4 stars, optional (rev_injective) *)
 

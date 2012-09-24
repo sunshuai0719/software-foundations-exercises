@@ -88,9 +88,13 @@ Proof.
   unfold lt. unfold transitive.
   intros n m o Hnm Hmo.
   induction Hmo as [ | m' Hm'o ].
-  Admitted.
 
-(* TODO *)
+  apply le_S.
+  apply Hnm.
+
+  apply le_S.
+  apply IHHm'o.
+Qed.
 
 (* Exercise: 2 stars, optional *)
 
@@ -100,9 +104,17 @@ Proof.
   unfold lt. unfold transitive.
   intros n m o Hnm Hmo.
   induction o as [ | o' ].
-  Admitted.
 
-(* TODO *)
+  apply le_S in Hnm.
+  apply le_trans with (a := (S n)) (b := (S m)) (c := 0).
+  apply Hnm.
+  apply Hmo.
+
+  apply le_trans with (a := (S n)) (b := (S m)) (c := S o').
+  apply le_S.
+  apply Hnm.
+  apply Hmo.
+Qed.
 
 Theorem le_Sn_le : forall n m, S n <= m -> n <= m.
 Proof.
@@ -116,7 +128,8 @@ Qed.
 Theorem le_S_n : forall n m,
   (S n <= S m) -> (n <= m).
 Proof.
-  Admitted.
+  apply Sn_le_Sm__n_le_m.
+Qed.
 
 (* TODO *)
 
@@ -139,9 +152,15 @@ Definition symmetric {X : Type} (R: relation X) :=
 Theorem le_not_symmetric :
   ~ (symmetric le).
 Proof.
-  Admitted.
-
-(* TODO *)
+  unfold symmetric.
+  unfold not.
+  intro H.
+  assert (Nonsense: 1 <= 0).
+  apply (H 0 1).
+  apply le_S.
+  apply le_n.
+  inversion Nonsense.
+Qed.
 
 Definition antisymmetric {X : Type} (R : relation X) :=
   forall a b : X, (R a b) -> (R b a) -> a = b.
@@ -151,6 +170,8 @@ Definition antisymmetric {X : Type} (R : relation X) :=
 Theorem le_antisymmetric :
   antisymmetric le.
 Proof.
+  unfold antisymmetric.
+  intros n m H1 H2.
   Admitted.
 
 (* TOOD *)

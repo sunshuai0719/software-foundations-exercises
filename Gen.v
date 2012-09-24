@@ -1,7 +1,7 @@
 (* File: Gen.v *)
 (* Title: Gen - Generalizing Induction Hypotheses *)
-(* Author: Peter Urbak <peteru@dragonwasrobot.com *)
-(* Version: 2011-06-21 *)
+(* Author: Peter Urbak <peteru@dragonwasrobot.com> *)
+(* Version: 2012-09-24 *)
 
 Require Export Poly.
 
@@ -210,6 +210,29 @@ Qed.
 
 (* Exercise: 4 stars, optional (app_length_twice) *)
 
+Theorem app_length : forall {X : Type} (l1 l2 : list X),
+  length (l1 ++ l2) = (length l1) + (length l2).
+Proof.
+  intros X l1 l2.
+  induction l1 as [ | n l1' ].
+
+  Case "l1 = nil".
+  unfold app.
+  unfold length.
+  fold @length.
+  unfold plus.
+  reflexivity.
+
+  Case "l1 = cons n l1'".
+  unfold app.
+  fold @app.
+  unfold length.
+  fold @length.
+  rewrite -> IHl1'.
+  rewrite -> plus_Sn_m.
+  reflexivity.
+Qed.
+
 Theorem app_length_twice : forall (X : Type) (n : nat) (l : list X),
   length l = n ->
   length (l ++ l) = n + n.
@@ -219,28 +242,35 @@ Proof.
   induction l as [ | n' l' ].
 
   Case "l' = []".
-  simpl.
   intros n eq.
+  simpl.
   rewrite <- eq.
   simpl.
   reflexivity.
 
   Case "l' = n' :: l'".
-  simpl.
   intros n.
-  destruct n.
+  destruct n as [ | n'' ].
+
+  SCase "n = 0".
   intros eq.
+  simpl.
   inversion eq.
 
-  simpl.
+  SCase "n = S n''".
   intros eq.
   inversion eq.
-  apply IHl' in H0.
-  inversion eq.
-  rewrite H1.
+  rewrite <- H0 in eq.
+  simpl.
   rewrite <- plus_n_Sm.
   rewrite <- IHl'.
-  symmetry.
-Admitted. (* needs the last bit of work. *)
+  rewrite -> app_length.
+  rewrite -> app_length.
+  unfold length at 2.
+  fold @length.
+  rewrite <- plus_n_Sm.
+  reflexivity.
+  reflexivity.
+Qed.
 
 (* end-of-Gen.v *)
