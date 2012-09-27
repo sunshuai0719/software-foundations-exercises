@@ -29,14 +29,11 @@ Vilhelm Sjoberg and Brent Yorgey.
   - 'index_informal'
 - Gen.
   - 'index_after_last_informal'
-- Prop.
-  - 'ev_MyProp_informal'
-  - 'true_upto_n__true_everywhere'
-  - 'ev_MyProp'
-  - 'MyProp_pfobj'
-  - 'p_provability'
+- Prop
+  - 'p_provability'.
   - All of Additional Exercises.
 - Logic.
+  - 'conj_fact'
   - 'double_neg_inf'
   - 'informal_not_PNP'
   - 'classic_axioms' and down.

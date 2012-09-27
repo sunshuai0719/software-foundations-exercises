@@ -1,17 +1,20 @@
 (* File: Logic.v *)
 (* Title: Logic - Logic in Coq *)
-(* Author: Peter Urbak <peteru@dragonwasrobot.com *)
-(* Version: 2011-09-07 *)
+(* Author: Peter Urbak <peteru@dragonwasrobot.com> *)
+(* Version: 2012-09-26 *)
 
 Require Export "Prop".
 
 (* Quantification and Implication *)
 
-Definition funny_prop1 := forall n, forall (E : ev n), ev (n + 4).
+Definition funny_prop1 :=
+  forall n, forall (E : beautiful n), beautiful (n + 3).
 
-Definition funny_prop1' := forall n, forall (_ : ev n), ev (n + 4).
+Definition funny_prop1' :=
+  forall n, forall (_ : beautiful n), beautiful (n + 3).
 
-Definition funny_prop1'' := forall n, ev n -> ev (n + 4).
+Definition funny_prop1'' :=
+  forall n, beautiful n -> beautiful (n + 3).
 
 (* "P -> Q" is just syntactic sugar for "forall (_ : P), Q". *)
 
@@ -26,17 +29,17 @@ Check conj.
 (* ===> forall P Q : Prop, P -> Q -> P /\ Q *)
 
 Theorem and_example :
-  (ev O) /\ (ev 4).
+  (beautiful O) /\ (beautiful 3).
 Proof.
   apply conj.
-  Case "left". apply ev_O.
-  Case "right". apply ev_SS. apply ev_SS. apply ev_O.
+  Case "left". apply b_0.
+  Case "right". apply b_3.
 Qed.
 
 Print and_example.
 (* ===> and_example =
-   conj (ev 0) (ev 4) ev_O (ev_SS 2 (ev SS O ev_O))
-   : ev 0 /\ ev 4 *)
+   conj (beautiful 0) (beautiful 3) b_0 b_3
+   : beautiful 0 /\ beautiful 3 *)
 
 Theorem and_example' :
   (ev O) /\ (ev 4).
@@ -125,7 +128,6 @@ Proof.
   SCase "Right".
   intro H.
   destruct IHn' as [ Hn' HSn' ].
-  SearchAbout ev.
   apply ev_SS in Hn'.
   apply Hn'.
   inversion H as [ H' ].
